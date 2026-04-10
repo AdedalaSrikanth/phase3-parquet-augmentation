@@ -1,87 +1,76 @@
-# parquet augmentation project
+phase 3 parquet augmentation project
 
-## overview
+this project builds parquet to parquet data augmentation software for tabular datasets. the software tracks the original source row for every augmented sample and supports both normal and group based randomization.
 
-This project builds a parquet to parquet data augmentation software for tabular datasets.
+main features
 
-The goal of this phase is to implement the core logic for generating augmented samples while keeping track of the original data.
+- reads input parquet file from same directory
+- saves output parquet file in same directory
+- tracks source_row_id for each augmented row
+- supports normal randomization
+- supports group based randomization
+- marks is_augmented, augmentation_round and randomization_mode
+- supports minority only augmentation to balance dataset
 
----
+files
 
-## files
+- build_input.py builds parquet input from csv
+- build_gallstone_input.py builds parquet input using gallstone dataset
+- phase2_parquet_augment.py performs main augmentation
+- phase3_analysis.py analyzes class distribution and augmentation lineage
+- phase3_model_comparison.py compares original, normal and group based datasets
+- phase3_minority_augment.py augments only minority class
+- phase3_minority_model_test.py evaluates minority balanced dataset
 
-- build_input.py  
-  converts the csv dataset into input.parquet
+input files
 
-- phase2_parquet_augment.py  
-  main augmentation program
+- input.parquet
+- gallstone.csv
+- ai4i2020.csv
 
-- ai4i2020.csv  
-  original dataset file
+output files
 
-- input.parquet  
-  dataset used as input for augmentation
+- augmented_minority_only.parquet
+- model_comparison_results.csv
+- minority_model_results.csv
 
-- augmented_output.parquet  
-  final dataset with original and augmented rows
+how to run
 
----
+activate virtual environment
 
-## what the software does
+run input build
+python build_gallstone_input.py
 
-The program reads a parquet file from the same folder and creates new synthetic rows by adding small noise to numeric columns.
+run augmentation
+python phase2_parquet_augment.py
 
-It also keeps track of where each augmented row came from.
+run analysis
+python phase3_analysis.py
 
----
+run model comparison
+python phase3_model_comparison.py
 
-## how it works
+run minority augmentation
+python phase3_minority_augment.py
 
-1. read input.parquet  
-2. identify numeric columns  
-3. create multiple augmented copies of each row  
-4. add small random noise to feature values  
-5. keep tracking columns like source_row_id  
-6. save the result as augmented_output.parquet  
+run model test
+python phase3_minority_model_test.py
 
----
+final results
 
-## randomization modes
+original, normal augmented and group based datasets showed high accuracy around 0.96 but f1 score was 0. this means model was predicting only majority class.
 
-The software supports two modes:
+after applying minority only augmentation, dataset became balanced and model performance changed to
 
-normal  
-- treats all rows independently  
-- group information is ignored  
+accuracy around 0.59  
+f1 score around 0.59  
 
-group_based  
-- preserves group_id  
-- keeps related rows together  
+this shows that accuracy alone is misleading for imbalanced datasets and minority balancing improves meaningful performance.
 
----
+note on smote
 
-## current phase
+smote type methods were considered but they require two samples for generating new data which makes source tracking difficult. this project uses single sample augmentation for simplicity.
 
-This phase focuses on:
+project status
 
-- building the augmentation software  
-- supporting parquet input and output  
-- adding row tracking  
-- supporting randomization modes  
-
----
-
-## not implemented yet
-
-The following will be done in phase 3:
-
-- comparing model performance with and without augmentation  
-- comparing normal vs group-based randomization  
-
----
-
-## notes
-
-- input file must be in the same directory  
-- output file is saved in the same directory  
-- only numeric columns are augmented  
+phase 3 completed
